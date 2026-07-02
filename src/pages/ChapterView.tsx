@@ -365,8 +365,8 @@ export default function ChapterView() {
 
   return (
     <>
-      <div className="py-8 pr-8 pl-4 max-w-6xl w-full">
-        <h1 className="text-4xl font-bold mb-8">{chapter.title}</h1>
+      <div className="w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-6 lg:py-8 lg:pr-8">
+        <h1 className="mb-6 text-3xl font-bold sm:mb-8 sm:text-4xl">{chapter.title}</h1>
 
         {pages.length === 0 ? (
           <div className="text-center py-12 space-y-4">
@@ -379,9 +379,9 @@ export default function ChapterView() {
             )}
           </div>
         ) : (
-          <div className="grid gap-8 lg:grid-cols-[180px,1fr]">
+          <div className="grid gap-6 xl:grid-cols-[220px,minmax(0,1fr)] xl:gap-8">
             <div className="space-y-2">
-              <div className="flex items-center justify-between mb-2">
+              <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-lg font-semibold">Pages:</h2>
                 {isAdmin && (
                   <div className="text-xs text-muted-foreground flex items-center gap-2">
@@ -400,7 +400,7 @@ export default function ChapterView() {
                       <div className="mx-3 my-1 h-0.5 rounded-full bg-primary/80" />
                     )}
                     <div
-                      className={`flex items-center gap-2 px-3 py-2 rounded-xl border border-border transition-colors ${
+                      className={`flex items-center gap-2 rounded-xl border border-border px-3 py-2 transition-colors ${
                         divider
                           ? "bg-muted/30 border-dashed cursor-default"
                           : "bg-card hover:border-primary/50 cursor-pointer"
@@ -431,7 +431,7 @@ export default function ChapterView() {
                             <span className="flex-1 h-px bg-border" aria-hidden />
                           </div>
                         ) : (
-                          <h3 className="font-medium leading-tight">{page.title}</h3>
+                          <h3 className="font-medium leading-tight break-words">{page.title}</h3>
                         )}
                       </div>
                       {isAdmin && (
@@ -483,7 +483,7 @@ export default function ChapterView() {
               )}
             </div>
 
-            <div className="border border-border rounded-2xl bg-card/30 p-4 min-h-[400px]">
+            <div className="min-h-[400px] rounded-2xl border border-border bg-card/30 p-3 sm:p-4">
               {selectedPageSlug ? (
                 <div className="h-full overflow-auto">
                   <PageView

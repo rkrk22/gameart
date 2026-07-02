@@ -1,6 +1,6 @@
 # Game Art Guidebook - Setup Instructions
 
-Good news: the project already ships with a Lovable-managed Supabase backend that contains the sample chapters/pages. You can simply run `npm install` and `npm run dev`—no configuration required.
+The project already ships with a working Supabase backend that contains the sample chapters/pages. You can simply run `npm install` and `npm run dev` with no additional configuration.
 
 If you want to connect the app to **your own** Supabase project instead, follow the optional steps below.
 
@@ -95,14 +95,14 @@ create policy "users_update_own_profile" on public.profiles
 
 ### 3. Configure Environment Variables
 
-The repository already contains a `.env` stub. Uncomment the lines and paste your own anon key if you want to override the default Lovable credentials:
+The repository already contains a `.env` stub. Uncomment the lines and paste your own anon key if you want to override the default credentials:
 
 ```env
 VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key-here
 VITE_ADMIN_EMAILS=your-email@example.com
 ```
 
-> `VITE_SUPABASE_URL` is fixed because the Lovable backend URL is public. Only the anon key needs to change when you point to a different project.
+> Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` to your own project values when switching away from the default backend.
 
 ### 4. Configure Auth Settings (Recommended)
 
@@ -141,7 +141,7 @@ npm run dev
 
 - **Auth**: Email/password via Supabase Auth
 - **Database**: PostgreSQL with Row Level Security (RLS)
-- **Storage**: Hosted by Lovable by default, but override-ready
+- **Storage**: Supabase-backed and override-ready
 - **Realtime**: Disabled by default for performance
 - **Admin detection**: First user or `VITE_ADMIN_EMAILS` list
 

@@ -390,12 +390,12 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
   }
 
   return (
-    <div className="relative max-w-5xl mx-auto p-8 pb-20">
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">{derivedTitle}</h1>
+    <div className="relative mx-auto max-w-5xl p-4 pb-20 sm:p-6 lg:p-8">
+      <div className="mb-4 flex flex-col gap-4 lg:mb-2 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="mb-2 break-words text-3xl font-bold sm:text-4xl">{derivedTitle}</h1>
           {(page || providedPage) && (
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {isFree && (
                 <Badge variant="secondary">
                   Free
@@ -416,7 +416,7 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
           )}
         </div>
         {isAdmin && page && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {!isEditing ? (
               <Button onClick={() => setIsEditing(true)} size="sm">
                 <Edit className="h-4 w-4 mr-2" />
@@ -447,7 +447,7 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
       </div>
 
       {syncing && (
-        <div className="pointer-events-none fixed bottom-6 right-6 flex items-center gap-2 rounded-full border border-border bg-background/95 px-3 py-2 text-xs text-muted-foreground shadow-sm">
+        <div className="pointer-events-none fixed bottom-4 left-4 right-4 z-20 flex w-fit max-w-[calc(100vw-2rem)] items-center gap-2 rounded-full border border-border bg-background/95 px-3 py-2 text-xs text-muted-foreground shadow-sm sm:bottom-6 sm:left-auto sm:right-6 sm:max-w-none">
           <RefreshCcw className="h-3 w-3 animate-spin text-primary" />
           <span>Syncing with Supabase…</span>
         </div>
@@ -455,7 +455,7 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
 
       <ContentGate isFree={isFree}>
         {isEditing ? (
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <div>
               <h3 className="text-sm font-semibold mb-2">Markdown Editor</h3>
               <Textarea
@@ -477,7 +477,7 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
             {contentError}
           </div>
         ) : (
-          <div className="prose prose-lg max-w-none">
+          <div className="prose prose-base max-w-none sm:prose-lg">
             <MarkdownRenderer
               content={content}
               pageSlug={slug ?? ""}
@@ -488,7 +488,7 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
       </ContentGate>
 
       {(page?.updated_at || !page) && (
-        <div className="pointer-events-none absolute top-0 right-0 text-right text-xs text-muted-foreground space-y-1 p-4">
+        <div className="pointer-events-none absolute right-0 top-0 space-y-1 p-2 text-right text-[11px] text-muted-foreground sm:p-4 sm:text-xs">
           {!page && <p>Syncing metadata from Supabase…</p>}
           {page?.updated_at && (
             <p>Last synced: {new Date(page.updated_at).toLocaleDateString()}</p>

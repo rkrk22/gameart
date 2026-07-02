@@ -4,7 +4,6 @@ import path from "path";
 import fs from "fs";
 import { promises as fsPromises } from "fs";
 import { IncomingMessage, ServerResponse } from "http";
-import { componentTagger } from "lovable-tagger";
 
 const createContentApiMiddleware = () => {
   const CONTENT_DIR = path.resolve(__dirname, "public/content/pages");
@@ -155,12 +154,12 @@ const contentApiPlugin = () => ({
 });
 
 // https://vitejs.dev/config/
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
   },
-  plugins: [react(), contentApiPlugin(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react(), contentApiPlugin()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

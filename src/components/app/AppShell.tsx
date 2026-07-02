@@ -11,6 +11,7 @@ import { toast } from "sonner";
 export const AppShell = () => {
   const { user, profile, refreshProfile } = useAuth();
   const [showAdminElevation, setShowAdminElevation] = useState(false);
+  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
 
   useEffect(() => {
     const checkAdminSlot = async () => {
@@ -66,9 +67,17 @@ export const AppShell = () => {
 
   return (
     <div className="flex h-screen w-full bg-background">
-      <Sidebar isAdmin={profile?.role === 'admin'} />
+      <Sidebar
+        isAdmin={profile?.role === 'admin'}
+        mobileOpen={mobileNavigationOpen}
+        onMobileOpenChange={setMobileNavigationOpen}
+      />
       <div className="flex flex-col flex-1 overflow-hidden">
-        <Header user={user} isAdmin={profile?.role === 'admin'} />
+        <Header
+          user={user}
+          isAdmin={profile?.role === 'admin'}
+          onOpenNavigation={() => setMobileNavigationOpen(true)}
+        />
 
         {showAdminElevation && (
           <div className="bg-accent/20 border-b border-accent p-3 flex items-center justify-between">

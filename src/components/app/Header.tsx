@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Gamepad2, LogOut, User as UserIcon, Shield, Star } from "lucide-react";
+import { Gamepad2, LogOut, Menu, Shield, Star, User as UserIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -18,9 +18,10 @@ import { useXp } from "./XpProvider";
 interface HeaderProps {
   user: User | null;
   isAdmin: boolean;
+  onOpenNavigation: () => void;
 }
 
-export const Header = ({ user, isAdmin }: HeaderProps) => {
+export const Header = ({ user, isAdmin, onOpenNavigation }: HeaderProps) => {
   const navigate = useNavigate();
   const { exp, setCounterRef, pulse } = useXp();
   const navLinks = [
@@ -39,14 +40,24 @@ export const Header = ({ user, isAdmin }: HeaderProps) => {
   };
 
   return (
-    <header className="h-14 border-b border-border bg-card flex items-center justify-between px-6">
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
+    <header className="flex min-h-14 items-center justify-between gap-3 border-b border-border bg-card px-4 sm:px-6">
+      <div className="flex min-w-0 items-center gap-3 sm:gap-6">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={onOpenNavigation}
+          aria-label="Open navigation menu"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
+        <div className="flex min-w-0 items-center gap-2">
           <Gamepad2 className="h-5 w-5 text-primary" />
-          <h1 className="font-semibold text-lg">Game Art Guidebook</h1>
+          <h1 className="truncate text-base font-semibold sm:text-lg">Game Art Guidebook</h1>
         </div>
 
-        <nav className="flex items-center gap-1">
+        <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -61,10 +72,10 @@ export const Header = ({ user, isAdmin }: HeaderProps) => {
         </nav>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         <div
           ref={setCounterRef}
-          className={`group flex items-center gap-2 rounded-full border border-border bg-muted px-3 py-1 text-sm font-semibold text-primary shadow-sm transition-transform duration-150 ${pulse ? "scale-[1.08]" : "scale-100"}`}
+          className={`group flex items-center gap-2 rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-semibold text-primary shadow-sm transition-transform duration-150 sm:px-3 sm:text-sm ${pulse ? "scale-[1.08]" : "scale-100"}`}
         >
           <Star className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
           <span className="tabular-nums">{exp} XP</span>
@@ -72,9 +83,9 @@ export const Header = ({ user, isAdmin }: HeaderProps) => {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <UserIcon className="h-4 w-4 mr-2" />
-              {user?.email}
+            <Button variant="ghost" size="sm" className="max-w-[11rem] px-2 sm:max-w-none sm:px-3">
+              <UserIcon className="h-4 w-4 sm:mr-2" />
+              <span className="hidden truncate sm:inline">{user?.email}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
