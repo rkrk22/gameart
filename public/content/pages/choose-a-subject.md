@@ -1,3 +1,4 @@
+
 “Make your work to be in keeping with your purpose.”
  
 Leonardo DaVinci
@@ -14,7 +15,7 @@ If you are developing your own game or a project for a non-existing game, there 
 
 You need to do some research. To make something not trivial, new and interesting, you need to have at least a rough idea of what was created before. Look at what are the popular games, the trends and start collecting references by the styles, and increase your watchfulness.
 
-And if you've never drawn art for games before, start with this page:
+And if you've never drawn art for games before (or you just skipped the previous page for some reason), start with this page:
 
 [What is Game Art](/read/basic-concepts)
 

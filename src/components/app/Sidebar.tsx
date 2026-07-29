@@ -3,10 +3,11 @@ import type { DragEvent } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import { supabase, Chapter } from "@/lib/supabase";
-import { Book, GripVertical, House, Loader2, Plus, Trash2, Users } from "lucide-react";
+import { Book, GripVertical, House, Loader2, Pencil, Plus, Trash2, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CreateChapterDialog } from "./CreateChapterDialog";
+import { EditChapterDialog } from "./EditChapterDialog";
 import { toast } from "sonner";
 import { reorderById } from "@/lib/reorder";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ export const Sidebar = ({ isAdmin, mobileOpen, onMobileOpenChange }: SidebarProp
   const [orderSaving, setOrderSaving] = useState(false);
   const [dropIndicatorIndex, setDropIndicatorIndex] = useState<number | null>(null);
   const [chapterPendingDeletion, setChapterPendingDeletion] = useState<Chapter | null>(null);
+  const [chapterPendingEdit, setChapterPendingEdit] = useState<Chapter | null>(null);
   const [chapterDeleting, setChapterDeleting] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -47,6 +49,17 @@ export const Sidebar = ({ isAdmin, mobileOpen, onMobileOpenChange }: SidebarProp
 
   useEffect(() => {
     fetchChapters();
+  }, []);
+
+  useEffect(() => {
+    const handleChaptersUpdated = () => {
+      void fetchChapters();
+    };
+
+    window.addEventListener("chapters-updated", handleChaptersUpdated);
+    return () => {
+      window.removeEventListener("chapters-updated", handleChaptersUpdated);
+    };
   }, []);
 
   const fetchChapters = async () => {
@@ -310,21 +323,38 @@ export const Sidebar = ({ isAdmin, mobileOpen, onMobileOpenChange }: SidebarProp
                     {chapter.title}
                   </NavLink>
                   {isAdmin && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-destructive"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        if (!orderSaving && !chapterDeleting) {
-                          setChapterPendingDeletion(chapter);
-                        }
-                      }}
-                      disabled={orderSaving || chapterDeleting}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          if (!orderSaving && !chapterDeleting) {
+                            setChapterPendingEdit(chapter);
+                          }
+                        }}
+                        disabled={orderSaving || chapterDeleting}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-muted-foreground hover:text-destructive"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          if (!orderSaving && !chapterDeleting) {
+                            setChapterPendingDeletion(chapter);
+                          }
+                        }}
+                        disabled={orderSaving || chapterDeleting}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               </Fragment>
@@ -367,6 +397,22 @@ export const Sidebar = ({ isAdmin, mobileOpen, onMobileOpenChange }: SidebarProp
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
         onChapterCreated={fetchChapters}
+      />
+
+      <EditChapterDialog
+        chapter={chapterPendingEdit}
+        open={!!chapterPendingEdit}
+        onOpenChange={(open) => {
+          if (!open) {
+            setChapterPendingEdit(null);
+          }
+        }}
+        onChapterUpdated={(updatedChapter) => {
+          setChapters((prev) =>
+            prev.map((chapter) => (chapter.id === updatedChapter.id ? updatedChapter : chapter)),
+          );
+          window.dispatchEvent(new CustomEvent("chapters-updated"));
+        }}
       />
 
       <AlertDialog

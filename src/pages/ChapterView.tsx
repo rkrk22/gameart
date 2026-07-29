@@ -2,12 +2,14 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import type { DragEvent } from "react";
 import { useParams } from "react-router-dom";
 import { supabase, Chapter, Page } from "@/lib/supabase";
-import { Loader2, FileText, GripVertical, Trash2 } from "lucide-react";
+import { Loader2, FileText, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreatePageDialog } from "@/components/app/CreatePageDialog";
 import { toast } from "sonner";
 import { reorderById } from "@/lib/reorder";
 import { CreateDividerDialog } from "@/components/app/CreateDividerDialog";
+import { EditChapterDialog } from "@/components/app/EditChapterDialog";
+import { EditPageTitleDialog } from "@/components/app/EditPageTitleDialog";
 import { isDividerPage } from "@/lib/pageDividers";
 import { readPageContentCache, shouldPrefetchPageContent, writePageContentCache } from "@/lib/contentCache";
 import PageView from "./PageView";
@@ -35,7 +37,9 @@ export default function ChapterView() {
   const [dropIndicatorIndex, setDropIndicatorIndex] = useState<number | null>(null);
   const [navigatingPageSlug, setNavigatingPageSlug] = useState<string | null>(null);
   const [pagePendingDeletion, setPagePendingDeletion] = useState<Page | null>(null);
+  const [pagePendingEdit, setPagePendingEdit] = useState<Page | null>(null);
   const [pageDeleting, setPageDeleting] = useState(false);
+  const [chapterEditOpen, setChapterEditOpen] = useState(false);
   const [selectedPageSlug, setSelectedPageSlug] = useState<string | null>(null);
   const fetchRequestRef = useRef(0);
   const loadingRequestRef = useRef<number | null>(null);
@@ -366,7 +370,19 @@ export default function ChapterView() {
   return (
     <>
       <div className="w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-6 lg:py-8 lg:pr-8">
-        <h1 className="mb-6 text-3xl font-bold sm:mb-8 sm:text-4xl">{chapter.title}</h1>
+        <div className="mb-6 flex items-center gap-3 sm:mb-8">
+          <h1 className="text-3xl font-bold sm:text-4xl">{chapter.title}</h1>
+          {isAdmin && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setChapterEditOpen(true)}
+              aria-label="Edit chapter title"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
 
         {pages.length === 0 ? (
           <div className="text-center py-12 space-y-4">
@@ -435,20 +451,36 @@ export default function ChapterView() {
                         )}
                       </div>
                       {isAdmin && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="ml-auto text-muted-foreground hover:text-destructive"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            if (!pageDeleting) {
-                              setPagePendingDeletion(page);
-                            }
-                          }}
-                          disabled={pageDeleting}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="ml-auto flex items-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              if (!pageDeleting) {
+                                setPagePendingEdit(page);
+                              }
+                            }}
+                            disabled={pageDeleting}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-muted-foreground hover:text-destructive"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              if (!pageDeleting) {
+                                setPagePendingDeletion(page);
+                              }
+                            }}
+                            disabled={pageDeleting}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   </Fragment>
@@ -512,6 +544,29 @@ export default function ChapterView() {
         onOpenChange={setShowCreateDialog}
         chapterId={chapter.id}
         onPageCreated={() => fetchChapterAndPages({ withLoading: false })}
+      />
+
+      <EditChapterDialog
+        chapter={chapter}
+        open={chapterEditOpen}
+        onOpenChange={setChapterEditOpen}
+        onChapterUpdated={(updatedChapter) => {
+          setChapter(updatedChapter);
+          window.dispatchEvent(new CustomEvent("chapters-updated"));
+        }}
+      />
+
+      <EditPageTitleDialog
+        open={!!pagePendingEdit}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPagePendingEdit(null);
+          }
+        }}
+        page={pagePendingEdit}
+        onPageUpdated={(updatedPage) => {
+          setPages((prev) => prev.map((page) => (page.id === updatedPage.id ? updatedPage : page)));
+        }}
       />
 
       <CreateDividerDialog

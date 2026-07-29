@@ -38,6 +38,7 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
   const [isAdmin, setIsAdmin] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const isEditingRef = useRef(false);
   const activeLoadRef = useRef<{
     slug: string;
     id: symbol;
@@ -59,6 +60,10 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
   };
 
   const isActiveLoad = (loadId: symbol) => activeLoadRef.current?.id === loadId;
+
+  useEffect(() => {
+    isEditingRef.current = isEditing;
+  }, [isEditing]);
 
   useEffect(() => {
     if (!slug) return;
@@ -111,7 +116,9 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
         if (signal.aborted || !isActiveLoad(loadId)) return;
 
         setContent((current) => (current === text ? current : text));
-        setEditContent((current) => (current === text ? current : text));
+        if (!isEditingRef.current) {
+          setEditContent((current) => (current === text ? current : text));
+        }
         const updatedAt = expectedUpdatedAt || latestUpdatedAtRef.current || undefined;
         writePageContentCache(pageSlug, text, updatedAt);
         setContentError(null);
@@ -418,7 +425,14 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
         {isAdmin && page && (
           <div className="flex flex-wrap gap-2">
             {!isEditing ? (
-              <Button onClick={() => setIsEditing(true)} size="sm">
+              <Button
+                onClick={() => {
+                  setEditContent(content);
+                  setIsFree(savedIsFree);
+                  setIsEditing(true);
+                }}
+                size="sm"
+              >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </Button>

@@ -110,7 +110,7 @@ export const MarkdownRenderer = ({ content, onLinkClick, pageSlug }: MarkdownRen
                   type="button"
                   onClick={handleImageClick}
                   style={wrapperStyle}
-                  className="group relative my-4 block cursor-zoom-in overflow-hidden rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  className="group relative block cursor-zoom-in overflow-hidden rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 >
                   <img
                     src={src}

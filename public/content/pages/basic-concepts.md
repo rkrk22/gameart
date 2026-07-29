@@ -30,3 +30,7 @@ Let's break it down in order:
 7. **GUI:** The game interface is an important element of game art that determines how the player will interact with the game. A good interface should not only be functional, but also attractive and intuitive for the user.
 
 In conclusion, game art is a complex and multi-leveled concept that combines art, technology, and game design philosophy. It is not just a visual component; it is the soul of the game that helps create a unique and unforgettable experience for the player.
+
+ **Watch this video**
+
+https://www.youtube.com/watch?v=2rD0c7c3Ot4
