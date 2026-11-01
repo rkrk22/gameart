@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase, Page } from "@/lib/supabase";
-import { Loader2, Edit, Save, X, RefreshCcw } from "lucide-react";
+import { Loader2, Edit, Save, X, RefreshCcw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ContentGate } from "@/components/app/ContentGate";
+import { PromoTeaserDialog } from "@/components/app/PromoTeaserDialog";
 import { Textarea } from "@/components/ui/textarea";
 import { MarkdownRenderer } from "@/components/app/MarkdownRenderer";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ import {
   writePageContentCache,
   writePageContentUpdatedAt,
 } from "@/lib/contentCache";
+import { PromoSlide } from "@/lib/promoTeaser";
 
 interface PageViewProps {
   slugOverride?: string | null;
@@ -38,6 +40,8 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
   const [isAdmin, setIsAdmin] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [promoOpen, setPromoOpen] = useState(false);
+  const [promoSlides, setPromoSlides] = useState<PromoSlide[]>([]);
   const isEditingRef = useRef(false);
   const activeLoadRef = useRef<{
     slug: string;
@@ -388,6 +392,11 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
     return handled ?? false;
   };
 
+  const handleOpenPagePromo = () => {
+    setPromoSlides([]);
+    setPromoOpen(true);
+  };
+
   if (contentLoading && !content) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -424,6 +433,14 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
         </div>
         {isAdmin && page && (
           <div className="flex flex-wrap gap-2">
+            <Button
+              onClick={handleOpenPagePromo}
+              size="sm"
+              variant="outline"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Promo teaser
+            </Button>
             {!isEditing ? (
               <Button
                 onClick={() => {
@@ -509,6 +526,18 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
           )}
         </div>
       )}
+
+      <PromoTeaserDialog
+        open={promoOpen}
+        onOpenChange={setPromoOpen}
+        slides={promoSlides}
+        title={`Promo teaser: ${derivedTitle}`}
+        description="Empty canvas for page promo generation. Use the prompt and OpenAI button to create teaser boards from the lesson content."
+        baseFilename={`${slug ?? "page"}-promo`}
+        aiSourceType="page"
+        aiSourceContent={isEditing ? editContent : content}
+        aiSourceTitle={derivedTitle}
+      />
     </div>
   );
 }

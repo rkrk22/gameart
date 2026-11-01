@@ -1,4 +1,4 @@
-import { useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { Children, isValidElement, useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -26,6 +26,15 @@ export const MarkdownRenderer = ({ content, onLinkClick, pageSlug }: MarkdownRen
 
   const handleCloseLightbox = () => setLightboxImage(null);
 
+  const shouldRenderParagraph = (children: ReactNode) =>
+    !Children.toArray(children).some((child) => {
+      if (!isValidElement(child) || typeof child.type !== "string") {
+        return false;
+      }
+
+      return ["div", "video", "iframe", "img", "button"].includes(child.type);
+    });
+
   return (
     <>
       <div onClickCapture={handleMarkdownImageClickCapture}>
@@ -42,9 +51,12 @@ export const MarkdownRenderer = ({ content, onLinkClick, pageSlug }: MarkdownRen
             h3: ({ children }) => (
               <h3 className="text-xl font-semibold mb-2 mt-4 text-foreground">{children}</h3>
             ),
-            p: ({ children }) => (
-              <p className="mb-4 text-foreground leading-relaxed">{children}</p>
-            ),
+            p: ({ children }) =>
+              shouldRenderParagraph(children) ? (
+                <p className="mb-4 text-foreground leading-relaxed">{children}</p>
+              ) : (
+                <>{children}</>
+              ),
             ul: ({ children }) => (
               <ul className="list-disc list-inside mb-4 space-y-2 text-foreground">{children}</ul>
             ),

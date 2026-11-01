@@ -100,9 +100,18 @@ The repository already contains a `.env` stub. Uncomment the lines and paste you
 ```env
 VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key-here
 VITE_ADMIN_EMAILS=your-email@example.com
+OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_MODEL=gpt-5
 ```
 
 > Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` to your own project values when switching away from the default backend.
+
+### Local OpenAI teaser generation
+
+- Put your OpenAI key in `.env` as `OPENAI_API_KEY=...`
+- Optional: override the model with `OPENAI_MODEL=...`
+- The teaser AI endpoint is available only on local hosts like `http://localhost:8080`
+- The key is used only by the local Vite middleware route `/api/ai/lesson-teaser` and is never exposed to the browser bundle
 
 ### 4. Configure Auth Settings (Recommended)
 
