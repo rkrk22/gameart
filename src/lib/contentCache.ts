@@ -1,3 +1,5 @@
+import { isAppHtml } from "./markdownContent";
+
 const CONTENT_KEY_PREFIX = "page-content-";
 const UPDATED_AT_KEY_PREFIX = "page-content-updated-at-";
 
@@ -17,7 +19,13 @@ export const readPageContentCache = (slug?: string) => {
   const storage = getStorage();
   if (!storage || !slug) return null;
   try {
-    return storage.getItem(buildContentKey(slug));
+    const content = storage.getItem(buildContentKey(slug));
+    if (content !== null && isAppHtml(content)) {
+      storage.removeItem(buildContentKey(slug));
+      storage.removeItem(buildUpdatedAtKey(slug));
+      return null;
+    }
+    return content;
   } catch {
     return null;
   }
@@ -25,7 +33,7 @@ export const readPageContentCache = (slug?: string) => {
 
 export const writePageContentCache = (slug: string, content: string, updatedAt?: string) => {
   const storage = getStorage();
-  if (!storage) return;
+  if (!storage || isAppHtml(content)) return;
   try {
     storage.setItem(buildContentKey(slug), content);
     if (updatedAt) {

@@ -1,3 +1,4 @@
+import { fetchMarkdownContent } from "@/lib/markdownContent";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { supabase, Page } from "@/lib/supabase";
@@ -110,12 +111,7 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
         setContentLoading(true);
       }
       try {
-        const response = await fetch(`/content/pages/${pageSlug}.md`, { signal });
-        if (!response.ok) {
-          const message = await response.text();
-          throw new Error(message || "Markdown file not found");
-        }
-        const text = await response.text();
+        const text = await fetchMarkdownContent(pageSlug, signal);
 
         if (signal.aborted || !isActiveLoad(loadId)) return;
 

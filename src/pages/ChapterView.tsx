@@ -1,3 +1,4 @@
+import { fetchMarkdownContent } from "@/lib/markdownContent";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DragEvent } from "react";
 import { useParams } from "react-router-dom";
@@ -221,9 +222,7 @@ export default function ChapterView() {
         if (!needsPrefetch) return;
 
         try {
-          const response = await fetch(`/content/pages/${page.slug}.md`);
-          if (!response.ok) return;
-          const text = await response.text();
+          const text = await fetchMarkdownContent(page.slug);
           writePageContentCache(page.slug, text, page.updated_at || undefined);
         } catch (error) {
           console.error("Failed to prefetch page content", { slug: page.slug, error });
@@ -372,12 +371,7 @@ export default function ChapterView() {
             return { title: page.title, slug: page.slug, markdown: cached };
           }
 
-          const response = await fetch(`/content/pages/${page.slug}.md`);
-          if (!response.ok) {
-            throw new Error(`Failed to load ${page.title}`);
-          }
-
-          const markdown = await response.text();
+          const markdown = await fetchMarkdownContent(page.slug);
           writePageContentCache(page.slug, markdown, page.updated_at || undefined);
           return { title: page.title, slug: page.slug, markdown };
         }),
