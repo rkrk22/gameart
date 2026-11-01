@@ -3,7 +3,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import type { DragEvent } from "react";
 import { useParams } from "react-router-dom";
 import { supabase, Chapter, Page } from "@/lib/supabase";
-import { Loader2, FileText, GripVertical, Pencil, Sparkles, Trash2 } from "lucide-react";
+import { Loader2, FileText, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreatePageDialog } from "@/components/app/CreatePageDialog";
 import { toast } from "sonner";
@@ -13,8 +13,6 @@ import { EditChapterDialog } from "@/components/app/EditChapterDialog";
 import { EditPageTitleDialog } from "@/components/app/EditPageTitleDialog";
 import { isDividerPage } from "@/lib/pageDividers";
 import { readPageContentCache, shouldPrefetchPageContent, writePageContentCache } from "@/lib/contentCache";
-import { PromoTeaserDialog } from "@/components/app/PromoTeaserDialog";
-import { PromoSlide } from "@/lib/promoTeaser";
 import PageView from "./PageView";
 import {
   AlertDialog,
@@ -44,10 +42,6 @@ export default function ChapterView() {
   const [pageDeleting, setPageDeleting] = useState(false);
   const [chapterEditOpen, setChapterEditOpen] = useState(false);
   const [selectedPageSlug, setSelectedPageSlug] = useState<string | null>(null);
-  const [promoOpen, setPromoOpen] = useState(false);
-  const [promoLoading, setPromoLoading] = useState(false);
-  const [promoSlides, setPromoSlides] = useState<PromoSlide[]>([]);
-  const [promoSourceContent, setPromoSourceContent] = useState("");
   const fetchRequestRef = useRef(0);
   const loadingRequestRef = useRef<number | null>(null);
   const selectedPage = useMemo(
@@ -356,43 +350,6 @@ export default function ChapterView() {
     }
   };
 
-  const handleOpenChapterPromo = async () => {
-    if (!chapter) return;
-
-    setPromoOpen(true);
-    setPromoLoading(true);
-
-    try {
-      const readablePages = pages.filter((page) => !isDividerPage(page));
-      const pageSources = await Promise.all(
-        readablePages.map(async (page) => {
-          const cached = readPageContentCache(page.slug);
-          if (cached !== null) {
-            return { title: page.title, slug: page.slug, markdown: cached };
-          }
-
-          const markdown = await fetchMarkdownContent(page.slug);
-          writePageContentCache(page.slug, markdown, page.updated_at || undefined);
-          return { title: page.title, slug: page.slug, markdown };
-        }),
-      );
-
-      setPromoSlides([]);
-      setPromoSourceContent(
-        pageSources
-          .map((page) => `# ${page.title}\n\n${page.markdown}`)
-          .join("\n\n---\n\n"),
-      );
-    } catch (error: unknown) {
-      console.error("Failed to build chapter teaser:", error);
-      const message = error instanceof Error ? error.message : "Failed to build teaser";
-      toast.error(message);
-      setPromoSlides([]);
-      setPromoSourceContent("");
-    } finally {
-      setPromoLoading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -417,14 +374,6 @@ export default function ChapterView() {
           <h1 className="text-3xl font-bold sm:text-4xl">{chapter.title}</h1>
           {isAdmin && (
             <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => void handleOpenChapterPromo()}
-              >
-                <Sparkles className="mr-2 h-4 w-4" />
-                Promo teaser
-              </Button>
               <Button
                 variant="outline"
                 size="icon"
@@ -658,18 +607,6 @@ export default function ChapterView() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <PromoTeaserDialog
-        open={promoOpen}
-        onOpenChange={setPromoOpen}
-        slides={promoSlides}
-        loading={promoLoading}
-        title={`Promo teaser: ${chapter.title}`}
-        description="Empty canvas for chapter promo generation. Use the prompt and OpenAI button to create teaser boards from the chapter content."
-        baseFilename={`${chapter.slug}-promo`}
-        aiSourceType="chapter"
-        aiSourceContent={promoSourceContent}
-        aiSourceTitle={chapter.title}
-      />
     </>
   );
 }
