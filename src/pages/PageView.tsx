@@ -241,12 +241,9 @@ export default function PageView({ slugOverride, initialPage, onNavigateToSlug }
     const hydrateFromChapter = async () => {
       if (!providedPage || !isActiveLoad(loadId)) return false;
 
-      const needsContentFetch = !cachedContent ||
-        (providedPage.updated_at && cachedUpdatedAt !== providedPage.updated_at);
-
-      if (needsContentFetch) {
-        await requestContent(providedPage.updated_at, cachedContent ? "refresh" : "initial");
-      }
+      // Local Markdown can change without a Supabase metadata update.
+      // Keep the cached lesson visible while checking its current file.
+      await requestContent(providedPage.updated_at, cachedContent ? "refresh" : "initial");
 
       if (!isActiveLoad(loadId)) return true;
 

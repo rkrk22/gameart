@@ -1,9 +1,11 @@
-import { Children, isValidElement, useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
+import { lazy, Suspense, Children, isValidElement, useState, type ComponentPropsWithoutRef, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { VideoEmbed } from "./VideoEmbed";
 import { XpStar } from "./XpStar";
+
+const ModelViewer = lazy(() => import("./ModelViewer"));
 
 interface MarkdownRendererProps {
   content: string;
@@ -42,6 +44,18 @@ export const MarkdownRenderer = ({ content, onLinkClick, pageSlug }: MarkdownRen
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}
           components={{
+            div: ({ node, children, ...props }) => {
+              const src = node?.properties?.dataModelSrc;
+              if (typeof src === "string" && src.startsWith("/") && !src.startsWith("//") && /\.glb$/i.test(src)) {
+                const title = node?.properties?.dataModelTitle;
+                return (
+                  <Suspense fallback={<p role="status" className="my-6 text-muted-foreground">Loading 3D viewer…</p>}>
+                    <ModelViewer src={src} title={typeof title === "string" ? title : undefined} />
+                  </Suspense>
+                );
+              }
+              return <div {...props}>{children}</div>;
+            },
             h1: ({ children }) => (
               <h1 className="text-3xl font-bold mb-4 text-foreground">{children}</h1>
             ),
